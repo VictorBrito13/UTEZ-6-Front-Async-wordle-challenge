@@ -27,6 +27,8 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             {/* Stack for auth */}
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            {/* Stack for game */}
+            <Stack.Screen name="game" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
           <StatusBar style="auto" />

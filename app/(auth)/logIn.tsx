@@ -1,5 +1,5 @@
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router';
 import { baseURL } from '@/helpers/baseUrl';
 import { useRouter } from 'expo-router';
@@ -13,7 +13,17 @@ export default function login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
-  const { setToken, authToken } = useAuth();
+  const { setToken, authToken, loadingToken } = useAuth();
+
+  useEffect(() => {
+    if (!loadingToken && authToken) {
+      router.replace('/game/stats');
+    }
+  }, [authToken, loadingToken, router]);
+
+  if (loadingToken) {
+    return <Text>Checking authentication...</Text>;
+  }
 
   // Functions
   const handleLogin = async () => {
@@ -38,8 +48,8 @@ export default function login() {
         console.log('Login successful:', data);
         // Store token in local storage or state management
         await setToken(data.accessToken);
-        // Navigate to main app
-        console.log('token de accesso', authToken);
+        // Navigate to game page
+        router.push('/game/stats');
       } else if (data.status >= 400 && data.status < 500) {
         console.error('Login failed:', data);
         setErrorMessage(data.msg);
