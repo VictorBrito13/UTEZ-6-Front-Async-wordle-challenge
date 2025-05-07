@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type AuthContextType = {
   authToken: string;
   setToken(value: string): Promise<void>;
-  clearToken(key: string): Promise<void>;
+  clearToken(): Promise<void>;
   loadingToken: boolean;
 };
 
