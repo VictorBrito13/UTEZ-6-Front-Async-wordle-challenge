@@ -135,6 +135,13 @@ export default function Stats() {
         title='Play'
         onPress={() => router.replace('/game/match')}
       />
+      <Button
+        title='Log out'
+        onPress={() => {
+          clearToken();
+          router.replace('/(auth)/logIn');
+        }}
+      />
       <ThemedText style={styles.title}>Statistics</ThemedText>
       <ThemedView style={styles.section}>
         <ThemedText>My Games: {myStats?.totalGames}</ThemedText>
