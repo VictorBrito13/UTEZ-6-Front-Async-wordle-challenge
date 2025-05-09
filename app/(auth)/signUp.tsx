@@ -7,6 +7,7 @@ import { baseURL } from '@/helpers/baseUrl';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { ThemedInput } from '@/components/ThemedInput';
 
 export default function signUp() {
   // States
@@ -62,7 +63,7 @@ export default function signUp() {
     <ThemedView style={themedStyles.container}>
       <ThemedText style={themedStyles.title}>Create Account</ThemedText>
 
-      <TextInput
+      <ThemedInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -71,7 +72,7 @@ export default function signUp() {
         style={themedStyles.input}
       />
 
-      <TextInput
+      <ThemedInput
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
@@ -79,7 +80,7 @@ export default function signUp() {
         style={themedStyles.input}
       />
 
-      <TextInput
+      <ThemedInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}

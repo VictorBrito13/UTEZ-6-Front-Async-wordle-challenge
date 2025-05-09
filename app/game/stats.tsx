@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/ThemedText'
 import { useAuth } from '@/context/auth/authContext'
 import { baseURL } from '@/helpers/baseUrl'
 import { useRouter } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface WordStat {
   word: string;
@@ -27,11 +28,11 @@ export default function Stats() {
   const [topPlayers, setTopPlayers] = useState<PlayerStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [ myStats, setMyStats ] = useState<MyStats>();
+  const [myStats, setMyStats] = useState<MyStats>();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchStats  = async () => {
+    const fetchStats = async () => {
       setLoading(true);
       setError(null);
 
@@ -122,57 +123,74 @@ export default function Stats() {
   );
 
   if (loading) {
-    return <View style={styles.loadingContainer}><ActivityIndicator size="large" /></View>;
+    return <ThemedView style={styles.loadingContainer}><ActivityIndicator size="large" /></ThemedView>;
   }
 
   if (error) {
-    return <View style={styles.errorContainer}><Text>Error: {error}</Text></View>;
+    return <ThemedView style={styles.errorContainer}><ThemedText>Error: {error}</ThemedText></ThemedView>;
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <Button
-        title='Play'
-        onPress={() => router.replace('/game/match')}
-      />
-      <Button
-        title='Log out'
-        onPress={() => {
-          clearToken();
-          router.replace('/(auth)/logIn');
-        }}
-      />
-      <ThemedText style={styles.title}>Statistics</ThemedText>
-      <ThemedView style={styles.section}>
-        <ThemedText>My Games: {myStats?.totalGames}</ThemedText>
-        <ThemedText>My Victories: {myStats?.totalVictories}</ThemedText>
-      </ThemedView>
+    <ThemedView className='px-2' style={{ flex: 1 }}>
+      <SafeAreaView className='md:container md:mx-auto p-6' style={{ flex: 1 }}>
+        <ThemedView style={{ flex: 1 }}>
+          {/* Action buttons container */}
+          <ThemedView className='flex flex-row'>
+            <ThemedView className='w-1/2 p-4'>
+              <Button
+                title='Play'
+                onPress={() => router.replace('/game/match')}
+              />
+            </ThemedView>
+            <ThemedView className='w-1/2 p-4'>
+              <Button
+                title='Log out'
+                onPress={() => {
+                  clearToken();
+                  router.replace('/(auth)/logIn');
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Most Guessed Words</ThemedText>
-        {mostGuessedWords.length > 0 ? (
-          <FlatList
-            data={mostGuessedWords}
-            renderItem={({item, index}) => renderWordItem({item, index})}
-            keyExtractor={item => item.word}
-          />
-        ) : (
-          <ThemedText>No guessed words data available.</ThemedText>
-        )}
-      </ThemedView>
+          {/* Page Title */}
+          <ThemedText style={styles.title}>Statistics</ThemedText>
+          {/* User statistics */}
+          <ThemedView className='mb-10'>
+            <ThemedText className=''>My stats</ThemedText>
+            <ThemedView className='flex flex-row'>
+              <ThemedText className='w-1/2 text-center'>My Games: {myStats?.totalGames}</ThemedText>
+              <ThemedText className='w-1/2 text-center'>My Victories: {myStats?.totalVictories}</ThemedText>
+            </ThemedView>
+          </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Top 10 Players (Most Wins)</ThemedText>
-        {topPlayers.length > 0 ? (
-          <FlatList
-            data={topPlayers}
-            renderItem={({item, index}) => renderPlayerItem({ item, index })}
-            keyExtractor={(item) => item.user}
-          />
-        ) : (
-          <ThemedText>No player stats available.</ThemedText>
-        )}
-      </ThemedView>
+          <ThemedView style={styles.section}>
+            <ThemedText style={styles.sectionTitle}>Most Guessed Words</ThemedText>
+            {mostGuessedWords.length > 0 ? (
+              <FlatList
+                data={mostGuessedWords}
+                renderItem={({ item, index }) => renderWordItem({ item, index })}
+                keyExtractor={item => item.word}
+              />
+            ) : (
+              <ThemedText>No guessed words data available.</ThemedText>
+            )}
+          </ThemedView>
+
+          <ThemedView style={styles.section}>
+            <ThemedText style={styles.sectionTitle}>Top 10 Players (Most Wins)</ThemedText>
+            {topPlayers.length > 0 ? (
+              <FlatList
+                data={topPlayers}
+                renderItem={({ item, index }) => renderPlayerItem({ item, index })}
+                keyExtractor={(item) => item.user}
+              />
+            ) : (
+              <ThemedText>No player stats available.</ThemedText>
+            )}
+          </ThemedView>
+        </ThemedView>
+      </SafeAreaView>
     </ThemedView>
   )
 }
@@ -181,7 +199,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0f0f0',
   },
   loadingContainer: {
     flex: 1,

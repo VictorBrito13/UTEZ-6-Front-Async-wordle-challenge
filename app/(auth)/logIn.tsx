@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/auth/authContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { ThemedInput } from '@/components/ThemedInput';
 
 export default function login() {
   // States
@@ -65,9 +66,9 @@ export default function login() {
 
   return (
     <ThemedView style={themedStyles.container}>
-      <ThemedText style={themedStyles.title}>Log In</ThemedText>
+      <ThemedText className='text-lg font-medium'>Log In</ThemedText>
 
-      <TextInput
+      <ThemedInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -76,7 +77,7 @@ export default function login() {
         style={themedStyles.input}
       />
 
-      <TextInput
+      <ThemedInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
