@@ -20,14 +20,10 @@ export function ThemedButton({
   title,
   ...rest
 }: ThemedButtonProps) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
-  const textColor = useThemeColor({ light: darkColor, dark: lightColor }, 'text');
-
   return (
-    <View style={[styles.defaultButtonContainer, { backgroundColor }, containerStyle]}>
+    <View style={[styles.defaultButtonContainer, containerStyle]}>
       <Button
         title={title || 'Button'}
-        color= {textColor}
         {...rest}
       />
     </View>

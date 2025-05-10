@@ -106,19 +106,19 @@ export default function Stats() {
 
   // Render Item for word list
   const renderWordItem = ({ item, index }: { item: WordStat, index: number }) => (
-    <ThemedView style={styles.listItem}>
+    <ThemedView className='flex flex-row py-2 justify-between' style={styles.listItem}>
       <ThemedText>#{++index}</ThemedText>
-      <ThemedText style={styles.word}>{item.word}</ThemedText>
-      <ThemedText style={styles.count}>Guessed: {item.totalGuesses}</ThemedText>
+      <ThemedText className='font-bold' style={styles.word}>{item.word}</ThemedText>
+      <ThemedText className='underline' style={styles.count}>Guessed: {item.totalGuesses}</ThemedText>
     </ThemedView>
   );
 
   // Render Item for player list
   const renderPlayerItem = ({ item, index }: { item: PlayerStat, index: number }) => (
-    <ThemedView style={styles.listItem}>
+    <ThemedView className='flex flex-row py-2 justify-between' style={styles.listItem}>
       <ThemedText>#{++index}</ThemedText>
       <ThemedText style={styles.username}>{item.user}</ThemedText>
-      <ThemedText style={styles.wins}>Wins: {item.totalWins}</ThemedText>
+      <ThemedText className='underline' style={styles.wins}>Wins: {item.totalWins}</ThemedText>
     </ThemedView>
   );
 
@@ -226,9 +226,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   listItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
@@ -237,7 +234,6 @@ const styles = StyleSheet.create({
   },
   count: {
     fontSize: 16,
-    color: 'gray',
   },
   username: {
     fontSize: 16,
@@ -245,6 +241,5 @@ const styles = StyleSheet.create({
   },
   wins: {
     fontSize: 16,
-    color: 'green',
   },
 });

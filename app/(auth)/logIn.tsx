@@ -7,6 +7,8 @@ import { useAuth } from '@/context/auth/authContext';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedInput } from '@/components/ThemedInput';
+import { ThemedLink } from '@/components/ThemedLink';
+import { ThemedButton } from '@/components/ThemedButton';
 
 export default function login() {
   // States
@@ -90,13 +92,14 @@ export default function login() {
       <Button
         title='Log In'
         onPress={handleLogin}
+        color={'#333F3C'}
       />
 
-      <Link href="/(auth)/signUp" style={themedStyles.linkContainer}>
-        <ThemedText style={themedStyles.linkText}>
+      <ThemedLink href="/(auth)/signUp" style={themedStyles.linkContainer}>
+        {/* <ThemedText style={themedStyles.linkText}> */}
           Don't have an account? Sign up
-        </ThemedText>
-      </Link>
+        {/* </ThemedText> */}
+      </ThemedLink>
     </ThemedView>
   )
 }
@@ -136,7 +139,6 @@ const themedStyles = StyleSheet.create({
     marginTop: 20,
   },
   linkText: {
-    color: 'blue',
     fontSize: 16,
   },
 });
