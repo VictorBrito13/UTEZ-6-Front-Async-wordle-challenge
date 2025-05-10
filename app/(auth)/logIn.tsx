@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedInput } from '@/components/ThemedInput';
 import { ThemedLink } from '@/components/ThemedLink';
 import { ThemedButton } from '@/components/ThemedButton';
+import { UI_Colors } from '@/constants/Colors';
 
 export default function login() {
   // States
@@ -92,13 +93,11 @@ export default function login() {
       <Button
         title='Log In'
         onPress={handleLogin}
-        color={'#333F3C'}
+        color={UI_Colors.GRAY}
       />
 
       <ThemedLink href="/(auth)/signUp" style={themedStyles.linkContainer}>
-        {/* <ThemedText style={themedStyles.linkText}> */}
           Don't have an account? Sign up
-        {/* </ThemedText> */}
       </ThemedLink>
     </ThemedView>
   )

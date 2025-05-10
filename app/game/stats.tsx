@@ -6,6 +6,7 @@ import { useAuth } from '@/context/auth/authContext'
 import { baseURL } from '@/helpers/baseUrl'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { UI_Colors } from '@/constants/Colors'
 
 interface WordStat {
   word: string;
@@ -138,17 +139,18 @@ export default function Stats() {
           <ThemedView className='flex flex-row'>
             <ThemedView className='w-1/2 p-4'>
               <Button
-                title='Play'
-                onPress={() => router.replace('/game/match')}
-              />
-            </ThemedView>
-            <ThemedView className='w-1/2 p-4'>
-              <Button
+                color={UI_Colors.RED} // RED
                 title='Log out'
                 onPress={() => {
                   clearToken();
                   router.replace('/(auth)/logIn');
                 }}
+              />
+            </ThemedView>
+            <ThemedView className='w-1/2 p-4'>
+              <Button
+                title='Play'
+                onPress={() => router.replace('/game/match')}
               />
             </ThemedView>
           </ThemedView>
@@ -157,7 +159,7 @@ export default function Stats() {
           <ThemedText style={styles.title}>Statistics</ThemedText>
           {/* User statistics */}
           <ThemedView className='mb-10'>
-            <ThemedText className=''>My stats</ThemedText>
+            <ThemedText className='font-bold' style={styles.sectionTitle}>My stats</ThemedText>
             <ThemedView className='flex flex-row'>
               <ThemedText className='w-1/2 text-center'>My Games: {myStats?.totalGames}</ThemedText>
               <ThemedText className='w-1/2 text-center'>My Victories: {myStats?.totalVictories}</ThemedText>
@@ -224,6 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    fontStyle: 'italic'
   },
   listItem: {
     borderBottomWidth: 1,

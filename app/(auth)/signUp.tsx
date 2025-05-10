@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Button } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, Button } from 'react-native';
 import { Link } from 'expo-router';
-import { TextInput } from 'react-native-gesture-handler';
 import { baseURL } from '@/helpers/baseUrl';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedInput } from '@/components/ThemedInput';
+import { ThemedButton } from '@/components/ThemedButton';
+import { UI_Colors } from '@/constants/Colors';
+import { ThemedLink } from '@/components/ThemedLink';
 
 export default function signUp() {
   // States
@@ -45,7 +46,7 @@ export default function signUp() {
       if (data.status >= 200 && data.status < 300) {
         // Navigate to login screen
         router.navigate('/(auth)/logIn')
-      } else if(data.status >= 400 && data.status < 500) {
+      } else if (data.status >= 400 && data.status < 500) {
         console.error('Sign up failed:', data);
         setErrorMessage(data.msg);
       } else {
@@ -93,13 +94,12 @@ export default function signUp() {
       <Button
         title='Create Account'
         onPress={handleSignUp}
+        color={UI_Colors.GRAY}
       />
 
-      <Link href="/(auth)/logIn" style={themedStyles.linkContainer}>
-        <ThemedText style={themedStyles.linkText}>
-          Already have an account? Log in
-        </ThemedText>
-      </Link>
+      <ThemedLink href="/(auth)/logIn" style={themedStyles.linkContainer}>
+        Already have an account? Log in
+      </ThemedLink>
     </ThemedView>
   )
 }
@@ -139,7 +139,6 @@ const themedStyles = StyleSheet.create({
     marginTop: 20,
   },
   linkText: {
-    color: 'blue',
     fontSize: 16,
   },
 });

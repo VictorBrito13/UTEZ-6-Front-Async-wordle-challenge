@@ -4,10 +4,11 @@ import { ThemedView } from '@/components/ThemedView'
 import { ThemedText } from '@/components/ThemedText'
 import { baseURL } from '@/helpers/baseUrl';
 import { GAME_DURATION, TOTAL_ATTEMPTS, WORD_LENGTH } from '@/constants/game.constants';
-import { TextInput } from 'react-native-gesture-handler';
 import { useAuth } from '@/context/auth/authContext';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ThemedInput } from '@/components/ThemedInput';
+import { Colors, UI_Colors } from '@/constants/Colors';
 
 interface GuessCell {
   status: 'correct' | 'present' | 'absent' | null;
@@ -216,74 +217,99 @@ export default function Match() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ThemedText>Guess the word</ThemedText>
-      {
-        error && (
-          <ThemedText>{error}</ThemedText>
-        )
-      }
-      {
-        gameProps.completeGameMsg && <ThemedText>{gameProps.completeGameMsg}</ThemedText>
-      }
-      {/* View for timer */}
-      <ThemedView>
-        <ThemedText>Time left</ThemedText>
-        <ThemedText>{formatTime(timer)}</ThemedText>
-      </ThemedView>
-
-      {/* View for the grid */}
-      <ThemedView>
+    <ThemedView style={{ flex: 1 }}>
+      <SafeAreaView className='md:container md:mx-auto p-6' style={{ flex: 1 }}>
+        <ThemedText className='text-center text-2xl font-bold'>Guess the word</ThemedText>
         {
-          guesses.map((row, rowIndex) => (
-            <View key={`row-${rowIndex}`} style={styles.row}>
-              {row.map((letter: GuessCell, colIndex: number) => {
-                // Define the background of the input depending on the letter correctness
-                let backgroundColor = 'gray';
-                if (letter.status === 'correct') {
-                  backgroundColor = 'green';
-                } else if (letter.status === 'present') {
-                  backgroundColor = 'yellow';
-                }
-                return (
-                  <ThemedView key={`col-${colIndex}`} style={styles.cell}>
-                    <TextInput
-                      style={{
-                        ...styles.input,
-                        backgroundColor
-                      }}
-                      value={letter.letter}
-                      onChangeText={(text) => handleInputChange(text, rowIndex, colIndex)}
-                      maxLength={1}
-                      autoCapitalize="characters"
-                      editable={rowIndex === currentRow}
-                      textAlign="center"
-                    />
-                  </ThemedView>
-                )
-              })}
-            </View>
-          ))
+          error && (
+            <ThemedText>{error}</ThemedText>
+          )
         }
-      </ThemedView>
-      {/* Cancel button */}
-      <Button
-        title='Leave Game'
-        onPress={async () => {
-          // Finish the game
-          await finishGame();
-          router.replace('/game/stats');
-        }}
-      />
-      <Button
-        title='Play Again'
-        onPress={async () => {
-          await finishGame();
-          resetGame();
-          setPlayAgain(prev => ++prev);
-        }}
-      />
-    </SafeAreaView>
+        {/* View for timer */}
+        <ThemedView className='w-1/4' style={{ backgroundColor: UI_Colors.RED, borderRadius: 4 }}>
+          <ThemedText className='text-center p-4'>Time left {formatTime(timer)}</ThemedText>
+        </ThemedView>
+
+        {/* View for the grid */}
+        <ThemedView className='mx-auto'>
+          {
+            guesses.map((row, rowIndex) => (
+              <View key={`row-${rowIndex}`} style={styles.row}>
+                {row.map((letter: GuessCell, colIndex: number) => {
+                  // Define the background of the input depending on the letter correctness
+                  let backgroundColor = UI_Colors.WHITE;
+                  if (letter.status === 'correct') {
+                    backgroundColor = UI_Colors.DARK_GREEN;
+                  } else if (letter.status === 'present') {
+                    backgroundColor = UI_Colors.YELLOW;
+                  } else if (letter.status === 'absent') {
+                    backgroundColor = UI_Colors.GRAY;
+                  }
+                  return (
+                    <ThemedView key={`col-${colIndex}`} style={styles.cell}>
+                      <ThemedInput
+                        darkColor={Colors.dark.text}
+                        style={{
+                          ...styles.input,
+                          backgroundColor: Colors.light.background,
+                          color: Colors.light.text,
+                          borderWidth: 4,
+                          borderColor: backgroundColor
+                        }}
+                        value={letter.letter}
+                        onChangeText={(text) => handleInputChange(text, rowIndex, colIndex)}
+                        maxLength={1}
+                        autoCapitalize="characters"
+                        editable={rowIndex === currentRow}
+                        textAlign="center"
+                      />
+                    </ThemedView>
+                  )
+                })}
+              </View>
+            ))
+          }
+        </ThemedView>
+
+        {/* Button to play again */}
+        <ThemedView className='my-6'>
+          <Button
+            title='Play Again'
+            onPress={async () => {
+              await finishGame();
+              resetGame();
+              setPlayAgain(prev => ++prev);
+            }}
+          />
+        </ThemedView>
+
+        {/* Cancel button */}
+        <ThemedView>
+          <Button
+            color={UI_Colors.RED}
+            title='Leave Game'
+            onPress={async () => {
+              // Finish the game
+              await finishGame();
+              router.replace('/game/stats');
+            }}
+          />
+        </ThemedView>
+        {
+          gameProps.completeGameMsg &&
+          <ThemedText
+            className='w-1/4 p-4 mx-auto my-4 text-center'
+            lightColor={UI_Colors.YELLOW}
+            style={{
+              backgroundColor: `${gameProps.completeGameMsg.toLowerCase().includes('over') ? UI_Colors.RED : UI_Colors.LIGHT_GREEN }`,
+              borderColor: `${gameProps.completeGameMsg.toLowerCase().includes('won') ? UI_Colors.YELLOW : '' }`,
+              borderWidth: parseInt(`${gameProps.completeGameMsg.toLowerCase().includes('won') ? 2 : 0 }`),
+              borderRadius: 4
+            }}
+          >{gameProps.completeGameMsg}</ThemedText>
+        }
+      </SafeAreaView>
+    </ThemedView>
   )
 }
 
