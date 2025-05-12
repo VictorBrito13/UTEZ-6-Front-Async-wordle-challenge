@@ -9,7 +9,8 @@ export const UI_Colors = {
   GRAY: '#333F3C',
   YELLOW: '#E2FB6C',
   WHITE: '#EBEDE8',
-  RED: '#FB4570'
+  RED: '#FB4570',
+  ORANGE: '#FD7F20'
 }
 
 const tintColorLight = UI_Colors.LIGHT_GREEN;

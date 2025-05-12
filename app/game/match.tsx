@@ -1,4 +1,4 @@
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, StyleSheet, Text, useColorScheme, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import { ThemedText } from '@/components/ThemedText'
@@ -128,6 +128,16 @@ export default function Match() {
         });
       }, 1000);
     }
+
+    return () => {
+      if (timerIdRef.current) {
+        console.log('Limpiando el timer con ID:', timerIdRef.current);
+        clearInterval(timerIdRef.current);
+        timerIdRef.current = undefined; // Reset the ref
+      } else {
+        console.log('No hay timer para limpiar.');
+      }
+    }
   }, [gameProps.isInProgress]);
 
   function formatTime(milliseconds: number): string {
@@ -238,7 +248,7 @@ export default function Match() {
                   if (letter.status === 'correct') {
                     backgroundColor = UI_Colors.LIGHT_GREEN;
                   } else if (letter.status === 'present') {
-                    backgroundColor = UI_Colors.YELLOW;
+                    backgroundColor = UI_Colors.ORANGE;
                   } else if (letter.status === 'absent') {
                     backgroundColor = UI_Colors.RED;
                   }
@@ -280,7 +290,7 @@ export default function Match() {
           />
         </ThemedView>
 
-        {/* Cancel button */}
+        {/* Leave game button */}
         <ThemedView>
           <Button
             color={UI_Colors.RED}
@@ -292,11 +302,18 @@ export default function Match() {
             }}
           />
         </ThemedView>
+
+        {/* Indicators */}
+        <ThemedView>
+          <ThemedText className='mb-4 mt-4'>If the box edge is 🟢 it means the letter is present in the word and is placed correctly.</ThemedText>
+          <ThemedText className='mb-4'>If the box edge is 🟠 it means the letter is present in the word but is not placed correctly.</ThemedText>
+          <ThemedText className='mb-4'>If the box edge is 🔴 it means the letter is not present in the word.</ThemedText>
+        </ThemedView>
         {
           gameProps.completeGameMsg &&
           <ThemedText
             className='w-1/4 p-4 mx-auto my-4 text-center'
-            lightColor={UI_Colors.YELLOW}
+            lightColor={UI_Colors.WHITE}
             style={{
               backgroundColor: `${gameProps.completeGameMsg.toLowerCase().includes('over') ? UI_Colors.RED : UI_Colors.LIGHT_GREEN}`,
               borderColor: `${gameProps.completeGameMsg.toLowerCase().includes('won') ? UI_Colors.YELLOW : ''}`,

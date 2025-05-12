@@ -107,41 +107,31 @@ export default function Stats() {
   }, [authToken]);
 
   // Render Item for word list
-  const renderWordItem = ({ item, index }: { item: WordStat, index: number }) => {
-    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY: UI_Colors.LIGHT_GREEN;
+  const renderStatItem = ({ item, index }: { item: WordStat | PlayerStat, index: number }) => {
+    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY : UI_Colors.LIGHT_GREEN;
     let color = UI_Colors.WHITE;
     if (index % 2 === 0) {
       bgColor = UI_Colors.WHITE;
       color = UI_Colors.GRAY
     }
 
-    return (
-      <ThemedView
-        className='flex flex-row py-2 justify-between px-4'
-        style={{ backgroundColor: bgColor, borderRadius: 4 }}>
-        <ThemedText style={{ color }}>#{++index}</ThemedText>
-        <ThemedText className='font-bold' style={{ ...styles.word, color }}>{item.word}</ThemedText>
-        <ThemedText className='font-bold' style={{ ...styles.count, color }}>Guessed: {item.totalGuesses}</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  // Render Item for player list
-  const renderPlayerItem = ({ item, index }: { item: PlayerStat, index: number }) => {
-    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY: UI_Colors.LIGHT_GREEN;
-    let color = UI_Colors.WHITE;
-    if (index % 2 === 0) {
-      bgColor = UI_Colors.WHITE;
-      color = UI_Colors.GRAY
-    }
+    let isWord = 'word' in item;
 
     return (
       <ThemedView
         className='flex flex-row py-2 justify-between px-4'
         style={{ backgroundColor: bgColor, borderRadius: 4 }}>
         <ThemedText style={{ color }}>#{++index}</ThemedText>
-        <ThemedText className='font-bold' style={{...styles.username, color}}>{item.user}</ThemedText>
-        <ThemedText className='font-bold' style={{...styles.wins, color}}>Wins: {item.totalWins}</ThemedText>
+        <ThemedText
+          className='font-bold'
+          style={{ ...styles.word, color }}>
+          {'word' in item ? item.word : item.user}
+        </ThemedText>
+        <ThemedText
+          className='font-bold'
+          style={{ ...styles.count, color }}>
+          { isWord ? 'Guessed' : 'Wins' }: {'totalGuesses' in item ? item.totalGuesses : item.totalWins}
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -195,7 +185,7 @@ export default function Stats() {
             {mostGuessedWords.length > 0 ? (
               <FlatList
                 data={mostGuessedWords}
-                renderItem={({ item, index }) => renderWordItem({ item, index })}
+                renderItem={({ item, index }) => renderStatItem({ item, index })}
                 keyExtractor={item => item.word}
               />
             ) : (
@@ -208,7 +198,7 @@ export default function Stats() {
             {topPlayers.length > 0 ? (
               <FlatList
                 data={topPlayers}
-                renderItem={({ item, index }) => renderPlayerItem({ item, index })}
+                renderItem={({ item, index }) => renderStatItem({ item, index })}
                 keyExtractor={(item) => item.user}
               />
             ) : (
