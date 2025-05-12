@@ -96,7 +96,6 @@ export default function Match() {
   }
 
   // Set timmer
-  let timerId: number | undefined = undefined;
   useEffect(() => {
     console.log('Ejecutando efect del timmer');
     console.log(gameProps);
@@ -109,29 +108,27 @@ export default function Match() {
             // finish the game
             (async () => {
               const response = await finishGame();
-              const data = await response.json();
               setGameProps({
-                completeGameMsg: data.message,
+                completeGameMsg: response.message,
                 isInProgress: false
               });
             })();
+
+            if (timerIdRef.current) {
+              console.log('Limpiando el timer con ID:', timerIdRef.current);
+              clearInterval(timerIdRef.current);
+              timerIdRef.current = undefined; // Reset the ref
+            } else {
+              console.log('No hay timer para limpiar.');
+            }
+
             return 0;
           }
           return time;
         });
       }, 1000);
-      console.log(timerId);
     }
-    return () => {
-      if (timerIdRef.current) {
-        console.log('Limpiando el timer con ID:', timerIdRef.current);
-        clearInterval(timerIdRef.current);
-        timerIdRef.current = undefined; // Reset the ref
-      } else {
-        console.log('No hay timer para limpiar.');
-      }
-    };
-  }, [gameProps]);
+  }, [gameProps.isInProgress]);
 
   function formatTime(milliseconds: number): string {
     const minutes = Math.floor(milliseconds / 60000);
@@ -227,7 +224,7 @@ export default function Match() {
         }
         {/* View for timer */}
         <ThemedView className='w-1/4' style={{ backgroundColor: UI_Colors.RED, borderRadius: 4 }}>
-          <ThemedText className='text-center p-4'>Time left {formatTime(timer)}</ThemedText>
+          <ThemedText className='text-center p-4' style={{ color: UI_Colors.WHITE }}>Time left {formatTime(timer)}</ThemedText>
         </ThemedView>
 
         {/* View for the grid */}
@@ -239,11 +236,11 @@ export default function Match() {
                   // Define the background of the input depending on the letter correctness
                   let backgroundColor = UI_Colors.WHITE;
                   if (letter.status === 'correct') {
-                    backgroundColor = UI_Colors.DARK_GREEN;
+                    backgroundColor = UI_Colors.LIGHT_GREEN;
                   } else if (letter.status === 'present') {
                     backgroundColor = UI_Colors.YELLOW;
                   } else if (letter.status === 'absent') {
-                    backgroundColor = UI_Colors.GRAY;
+                    backgroundColor = UI_Colors.RED;
                   }
                   return (
                     <ThemedView key={`col-${colIndex}`} style={styles.cell}>
@@ -251,8 +248,8 @@ export default function Match() {
                         darkColor={Colors.dark.text}
                         style={{
                           ...styles.input,
-                          backgroundColor: Colors.light.background,
-                          color: Colors.light.text,
+                          backgroundColor: UI_Colors.WHITE,
+                          color: UI_Colors.GRAY,
                           borderWidth: 4,
                           borderColor: backgroundColor
                         }}
@@ -301,9 +298,9 @@ export default function Match() {
             className='w-1/4 p-4 mx-auto my-4 text-center'
             lightColor={UI_Colors.YELLOW}
             style={{
-              backgroundColor: `${gameProps.completeGameMsg.toLowerCase().includes('over') ? UI_Colors.RED : UI_Colors.LIGHT_GREEN }`,
-              borderColor: `${gameProps.completeGameMsg.toLowerCase().includes('won') ? UI_Colors.YELLOW : '' }`,
-              borderWidth: parseInt(`${gameProps.completeGameMsg.toLowerCase().includes('won') ? 2 : 0 }`),
+              backgroundColor: `${gameProps.completeGameMsg.toLowerCase().includes('over') ? UI_Colors.RED : UI_Colors.LIGHT_GREEN}`,
+              borderColor: `${gameProps.completeGameMsg.toLowerCase().includes('won') ? UI_Colors.YELLOW : ''}`,
+              borderWidth: parseInt(`${gameProps.completeGameMsg.toLowerCase().includes('won') ? 2 : 0}`),
               borderRadius: 4
             }}
           >{gameProps.completeGameMsg}</ThemedText>
