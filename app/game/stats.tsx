@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, Button } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, Button, useColorScheme } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import { ThemedText } from '@/components/ThemedText'
 import { useAuth } from '@/context/auth/authContext'
@@ -31,6 +31,7 @@ export default function Stats() {
   const [error, setError] = useState<string | null>(null);
   const [myStats, setMyStats] = useState<MyStats>();
   const router = useRouter();
+  const themeRef = useRef(useColorScheme());
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -39,7 +40,7 @@ export default function Stats() {
 
       try {
 
-        // Fetch my stats
+        //* Fetch my stats
         const myStatsResponse = await fetch(`${baseURL}/game-stats/my-stats`, {
           headers: {
             Authorization: `Bearer ${authToken}`
@@ -57,7 +58,7 @@ export default function Stats() {
         }
         setMyStats(myStatsResponseJson.data);
 
-        // Fetch most guessed words
+        //* Fetch most guessed words
         const wordsResponse = await fetch(`${baseURL}/game-stats/top-words`, {
           headers: {
             Authorization: `Bearer ${authToken}`
@@ -77,7 +78,7 @@ export default function Stats() {
         const wordsData: WordStat[] = wordsResponseJson.data;
         setMostGuessedWords(wordsData);
 
-        // Fetch top players
+        //* Fetch top players
         const playersResponse = await fetch(`${baseURL}/game-stats/top-players`, {
           headers: {
             Authorization: `Bearer ${authToken}`
@@ -106,22 +107,44 @@ export default function Stats() {
   }, [authToken]);
 
   // Render Item for word list
-  const renderWordItem = ({ item, index }: { item: WordStat, index: number }) => (
-    <ThemedView className='flex flex-row py-2 justify-between' style={styles.listItem}>
-      <ThemedText>#{++index}</ThemedText>
-      <ThemedText className='font-bold' style={styles.word}>{item.word}</ThemedText>
-      <ThemedText className='underline' style={styles.count}>Guessed: {item.totalGuesses}</ThemedText>
-    </ThemedView>
-  );
+  const renderWordItem = ({ item, index }: { item: WordStat, index: number }) => {
+    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY: UI_Colors.LIGHT_GREEN;
+    let color = UI_Colors.WHITE;
+    if (index % 2 === 0) {
+      bgColor = UI_Colors.WHITE;
+      color = UI_Colors.GRAY
+    }
+
+    return (
+      <ThemedView
+        className='flex flex-row py-2 justify-between px-4'
+        style={{ backgroundColor: bgColor, borderRadius: 4 }}>
+        <ThemedText style={{ color }}>#{++index}</ThemedText>
+        <ThemedText className='font-bold' style={{ ...styles.word, color }}>{item.word}</ThemedText>
+        <ThemedText className='font-bold' style={{ ...styles.count, color }}>Guessed: {item.totalGuesses}</ThemedText>
+      </ThemedView>
+    );
+  }
 
   // Render Item for player list
-  const renderPlayerItem = ({ item, index }: { item: PlayerStat, index: number }) => (
-    <ThemedView className='flex flex-row py-2 justify-between' style={styles.listItem}>
-      <ThemedText>#{++index}</ThemedText>
-      <ThemedText style={styles.username}>{item.user}</ThemedText>
-      <ThemedText className='underline' style={styles.wins}>Wins: {item.totalWins}</ThemedText>
-    </ThemedView>
-  );
+  const renderPlayerItem = ({ item, index }: { item: PlayerStat, index: number }) => {
+    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY: UI_Colors.LIGHT_GREEN;
+    let color = UI_Colors.WHITE;
+    if (index % 2 === 0) {
+      bgColor = UI_Colors.WHITE;
+      color = UI_Colors.GRAY
+    }
+
+    return (
+      <ThemedView
+        className='flex flex-row py-2 justify-between px-4'
+        style={{ backgroundColor: bgColor, borderRadius: 4 }}>
+        <ThemedText style={{ color }}>#{++index}</ThemedText>
+        <ThemedText className='font-bold' style={{...styles.username, color}}>{item.user}</ThemedText>
+        <ThemedText className='font-bold' style={{...styles.wins, color}}>Wins: {item.totalWins}</ThemedText>
+      </ThemedView>
+    );
+  }
 
   if (loading) {
     return <ThemedView style={styles.loadingContainer}><ActivityIndicator size="large" /></ThemedView>;
@@ -139,7 +162,7 @@ export default function Stats() {
           <ThemedView className='flex flex-row'>
             <ThemedView className='w-1/2 p-4'>
               <Button
-                color={UI_Colors.RED} // RED
+                color={UI_Colors.RED}
                 title='Log out'
                 onPress={() => {
                   clearToken();
@@ -149,6 +172,7 @@ export default function Stats() {
             </ThemedView>
             <ThemedView className='w-1/2 p-4'>
               <Button
+                color={themeRef.current === 'dark' ? UI_Colors.DARK_GREEN : UI_Colors.LIGHT_GREEN}
                 title='Play'
                 onPress={() => router.replace('/game/match')}
               />
@@ -160,9 +184,9 @@ export default function Stats() {
           {/* User statistics */}
           <ThemedView className='mb-10'>
             <ThemedText className='font-bold' style={styles.sectionTitle}>My stats</ThemedText>
-            <ThemedView className='flex flex-row'>
-              <ThemedText className='w-1/2 text-center'>My Games: {myStats?.totalGames}</ThemedText>
-              <ThemedText className='w-1/2 text-center'>My Victories: {myStats?.totalVictories}</ThemedText>
+            <ThemedView className='border-2 flex flex-row justify-around' style={{ borderRadius: 4 }}>
+              <ThemedText className='text-center p-4'>My Games: {myStats?.totalGames}</ThemedText>
+              <ThemedText className='text-center p-4'>My Victories: {myStats?.totalVictories}</ThemedText>
             </ThemedView>
           </ThemedView>
 

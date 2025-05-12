@@ -12,7 +12,7 @@ export const UI_Colors = {
   RED: '#FB4570'
 }
 
-const tintColorLight = '#0a7ea4';
+const tintColorLight = UI_Colors.LIGHT_GREEN;
 const tintColorDark = UI_Colors.WHITE;
 
 export const Colors = {

@@ -68,37 +68,39 @@ export default function login() {
   };
 
   return (
-    <ThemedView style={themedStyles.container}>
-      <ThemedText className='text-lg font-medium'>Log In</ThemedText>
+    <ThemedView style={{ flex: 1 }}>
+      <ThemedView style={themedStyles.container}>
+        <ThemedText className='text-lg font-medium'>Log In</ThemedText>
 
-      <ThemedInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={themedStyles.input}
-      />
+        <ThemedInput
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={themedStyles.input}
+        />
 
-      <ThemedInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={themedStyles.input}
-      />
+        <ThemedInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={themedStyles.input}
+        />
 
-      {errorMessage && <Text style={themedStyles.errorText}>{errorMessage}</Text>}
+        {errorMessage && <Text style={themedStyles.errorText}>{errorMessage}</Text>}
 
-      <Button
-        title='Log In'
-        onPress={handleLogin}
-        color={UI_Colors.GRAY}
-      />
+        <Button
+          title='Log In'
+          onPress={handleLogin}
+          color={UI_Colors.GRAY}
+        />
 
-      <ThemedLink href="/(auth)/signUp" style={themedStyles.linkContainer}>
+        <ThemedLink href="/(auth)/signUp" style={themedStyles.linkContainer}>
           Don't have an account? Sign up
-      </ThemedLink>
+        </ThemedLink>
+      </ThemedView>
     </ThemedView>
   )
 }

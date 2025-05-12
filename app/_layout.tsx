@@ -22,20 +22,22 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack initialRouteName='(auth)'>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            {/* Stack for auth */}
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            {/* Stack for game */}
-            <Stack.Screen name="game" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </GestureHandlerRootView>
-    </AuthProvider>
+    <ThemedView style={{ flex: 1 }}>
+      <AuthProvider>
+        <GestureHandlerRootView className='sm:w-full md:w-1/2 md:mx-auto' style={{ flex: 1 }}>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack initialRouteName='(auth)'>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              {/* Stack for auth */}
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              {/* Stack for game */}
+              <Stack.Screen name="game" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </AuthProvider>
+    </ThemedView>
   );
 }
