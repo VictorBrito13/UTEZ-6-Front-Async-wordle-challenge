@@ -1,14 +1,17 @@
-import { Button, StyleSheet, Text, useColorScheme, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { Button, StyleSheet, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import { ThemedText } from '@/components/ThemedText'
-import { baseURL } from '@/helpers/baseUrl';
-import { GAME_DURATION, TOTAL_ATTEMPTS, WORD_LENGTH } from '@/constants/game.constants';
+import { TOTAL_ATTEMPTS, WORD_LENGTH } from '@/constants/game.constants';
 import { useAuth } from '@/context/auth/authContext';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedInput } from '@/components/ThemedInput';
 import { Colors, UI_Colors } from '@/constants/Colors';
+import { finishGame } from '@/helpers/http/finishGame';
+import { Timer } from '@/components/ui/Timer';
+import { createGame } from '@/helpers/http/createGame';
+import { sendAttempt } from '@/helpers/http/sendAttempt';
 
 interface GuessCell {
   status: 'correct' | 'present' | 'absent' | null;
@@ -21,19 +24,18 @@ export default function Match() {
     completeGameMsg: '',
     isInProgress: true
   });
-  const [timer, setTimer] = useState(GAME_DURATION);
   const { authToken, clearToken } = useAuth();
   const router = useRouter();
   const [guesses, setGuesses] = useState<GuessCell[][]>(initGuesses());
   const [currentRow, setCurrentRow] = useState(0);
   const [playAgain, setPlayAgain] = useState(0);
-  const timerIdRef = useRef<number | undefined>(undefined);
+  const [shouldRestartTimer, setShouldRestartTimer] = useState(false);
 
   function initGuesses() {
     let guesses: GuessCell[][] = new Array(new Array(5).length);
-    for(let i = 0; i <= TOTAL_ATTEMPTS - 1; i++) {
+    for (let i = 0; i <= TOTAL_ATTEMPTS - 1; i++) {
       guesses[i] = [];
-      for(let j = 0; j <= WORD_LENGTH - 1; j++) {
+      for (let j = 0; j <= WORD_LENGTH - 1; j++) {
         guesses[i][j] = { letter: '', status: null }
       }
     }
@@ -41,159 +43,44 @@ export default function Match() {
   }
 
   function resetGame() {
-    setTimer(GAME_DURATION);
     setGuesses(initGuesses());
     setGameProps({
       completeGameMsg: '',
       isInProgress: true
     });
     setCurrentRow(0);
-    timerIdRef.current = undefined;
-  }
-
-  async function createGame() {
-    try {
-      const response = await fetch(`${baseURL}/game-core/create-game`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        }
-      });
-      const data = await response.json();
-
-      // In case the user has not a session
-      if (data.statusCode === 401) {
-        clearToken();
-        setError('You must have a valid session');
-        setTimeout(() => {
-          router.replace('/(auth)/logIn');
-        }, 3000);
-      }
-
-      // if the user complete the game (has played all words)
-      if (data.status === 400) {
-        setError(data.message);
-        return;
-      }
-      console.log(data);
-    } catch (error) {
-      console.error('Error fetching word:', error);
-    }
+    setShouldRestartTimer(true);
   }
 
   // Fetch the word of the game and reset the game when goes out
   useEffect(() => {
-    (async () => await createGame())();
+    (async () => {
+      try {
+        const response = await createGame(authToken);
+
+        // In case the user has not a session
+        if (response.statusCode === 401) {
+          clearToken();
+          setError('You must have a valid session');
+          setTimeout(() => {
+            router.replace('/(auth)/logIn');
+          }, 3000);
+        }
+
+        // if the user complete the game (has played all words)
+        if (response.status === 400) {
+          setError(response.message);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
 
     return () => {
-      (async () => await finishGame())();
+      (async () => await finishGame(authToken))();
     }
   }, [playAgain]);
-
-  async function finishGame() {
-    const response = await fetch(`${baseURL}/game-core/finish-game`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${authToken}`
-      }
-    });
-
-    const data = await response.json();
-    console.log(data);
-    console.log('juego finalizado');
-    return data;
-  }
-
-  // Set timmer
-  useEffect(() => {
-    console.log('Ejecutando efect del timmer');
-    console.log(gameProps);
-    if (gameProps.isInProgress) {
-      timerIdRef.current = setInterval(() => {
-        setTimer(prev => {
-          let time = prev - 1000;
-          // Stop the game when the time is 0
-          if (time <= 0) {
-            // finish the game
-            (async () => {
-              const response = await finishGame();
-              setGameProps({
-                completeGameMsg: response.message,
-                isInProgress: false
-              });
-            })();
-
-            if (timerIdRef.current) {
-              console.log('Limpiando el timer con ID:', timerIdRef.current);
-              clearInterval(timerIdRef.current);
-              timerIdRef.current = undefined; // Reset the ref
-            } else {
-              console.log('No hay timer para limpiar.');
-            }
-
-            return 0;
-          }
-          return time;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (timerIdRef.current) {
-        console.log('Limpiando el timer con ID:', timerIdRef.current);
-        clearInterval(timerIdRef.current);
-        timerIdRef.current = undefined; // Reset the ref
-      } else {
-        console.log('No hay timer para limpiar.');
-      }
-    }
-  }, [gameProps.isInProgress]);
-
-  function formatTime(milliseconds: number): string {
-    const minutes = Math.floor(milliseconds / 60000);
-    const seconds = Math.floor((milliseconds % 60000) / 1000);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  }
-
-  async function sendAttempt(word: string) {
-    const response = await fetch(`${baseURL}/game-core/guess-word`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`
-      },
-      body: JSON.stringify({ word })
-    });
-
-    const data = await response.json();
-
-    if (data.status === 404) {
-      setError(data.message);
-      return;
-    }
-
-    // In case the user has not a valid session
-    if (data.statusCode === 401) {
-      clearToken();
-      setError('You must have a valid session');
-      setTimeout(() => {
-        router.replace('/(auth)/logIn');
-      }, 3000);
-      return;
-    }
-
-    // Receive a message when the game is over (wor or lose)
-    if (data.message) {
-      setGameProps({
-        isInProgress: false,
-        completeGameMsg: data.message
-      });
-      console.log('finalizando juego');
-      await finishGame();
-    }
-
-    return data.data;
-  }
 
   // This function is to change the values of the current row ans a specific column
   const handleInputChange = async (text: string, row: number, col: number) => {
@@ -206,22 +93,57 @@ export default function Match() {
       // If all the letters in this row are defined: send an attempt to guess the word
       if (!newGuesses[row].some(letter => letter.letter.trim() === '')) {
         const word: string = newGuesses[row].map(col => col.letter).join('');
-        const feedback = await sendAttempt(word);
 
-        // Update the letter status
-        const newGuessesStatus = newGuesses.map((guessRow, r) =>
-          r === row
-            // Access the current row
-            ? guessRow.map((cell, c) => {
-              // Access the columns to modify the status of the object GuessCell
-              return { ...cell, status: feedback[c.toString()].status }
-            })
-            : guessRow
-        );
-        console.log("Feedback", feedback);
-        console.log("new guesses status", newGuessesStatus);
-        setGuesses(newGuessesStatus);
-        setCurrentRow(prev => ++prev);
+        try {
+          const response = await sendAttempt(word, authToken);
+
+          if (!response) {
+            setError("An error has ocurred");
+            return;
+          }
+
+          if (response.status === 404) {
+            setError(response.message);
+            return;
+          }
+
+          // In case the user has not a valid session
+          if (response.statusCode === 401) {
+            clearToken();
+            setError('You must have a valid session');
+            setTimeout(() => {
+              router.replace('/(auth)/logIn');
+            }, 3000);
+            return;
+          }
+
+          // Receive a message when the game is over (wor or lose)
+          if (response.message) {
+            setGameProps({
+              isInProgress: false,
+              completeGameMsg: response.message
+            });
+            console.log('finalizando juego');
+            await finishGame(authToken);
+          }
+
+          const feedback = response.data;
+
+          // Update the letter status
+          const newGuessesStatus = newGuesses.map((guessRow, r) =>
+            r === row
+              // Access the current row
+              ? guessRow.map((cell, c) => {
+                // Access the columns to modify the status of the object GuessCell
+                return { ...cell, status: feedback[c.toString()].status }
+              })
+              : guessRow
+          );
+          setGuesses(newGuessesStatus);
+          setCurrentRow(prev => ++prev);
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
   };
@@ -236,9 +158,12 @@ export default function Match() {
           )
         }
         {/* View for timer */}
-        <ThemedView className='w-1/4' style={{ backgroundColor: UI_Colors.RED, borderRadius: 4 }}>
-          <ThemedText className='text-center p-4' style={{ color: UI_Colors.WHITE }}>Time left {formatTime(timer)}</ThemedText>
-        </ThemedView>
+        {
+          !error ?
+            <Timer setShouldRestartTimer={setShouldRestartTimer} shouldRestart={shouldRestartTimer} isInProgress={gameProps.isInProgress} setGameProps={setGameProps} />
+            :
+            null
+        }
 
         {/* View for the grid */}
         <ThemedView className='mx-auto'>
@@ -270,7 +195,7 @@ export default function Match() {
                         onChangeText={(text) => handleInputChange(text, rowIndex, colIndex)}
                         maxLength={1}
                         autoCapitalize="characters"
-                        editable={rowIndex === currentRow}
+                        editable={rowIndex === currentRow && gameProps.isInProgress}
                         textAlign="center"
                       />
                     </ThemedView>
@@ -286,7 +211,7 @@ export default function Match() {
           <Button
             title='Play Again'
             onPress={async () => {
-              await finishGame();
+              await finishGame(authToken);
               resetGame();
               setPlayAgain(prev => ++prev);
             }}
@@ -300,7 +225,7 @@ export default function Match() {
             title='Leave Game'
             onPress={async () => {
               // Finish the game
-              await finishGame();
+              await finishGame(authToken);
               router.replace('/game/stats');
             }}
           />

@@ -7,13 +7,14 @@ import { baseURL } from '@/helpers/baseUrl'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { UI_Colors } from '@/constants/Colors'
+import { renderStatItem } from '@/components/ui/renderStatItem'
 
-interface WordStat {
+export interface WordStat {
   word: string;
   totalGuesses: number;
 }
 
-interface PlayerStat {
+export interface PlayerStat {
   user: string;
   totalWins: number;
 }
@@ -106,36 +107,6 @@ export default function Stats() {
     fetchStats();
   }, [authToken]);
 
-  // Render Item for word list
-  const renderStatItem = ({ item, index }: { item: WordStat | PlayerStat, index: number }) => {
-    let bgColor = themeRef.current === 'dark' ? UI_Colors.GRAY : UI_Colors.LIGHT_GREEN;
-    let color = UI_Colors.WHITE;
-    if (index % 2 === 0) {
-      bgColor = UI_Colors.WHITE;
-      color = UI_Colors.GRAY
-    }
-
-    let isWord = 'word' in item;
-
-    return (
-      <ThemedView
-        className='flex flex-row py-2 justify-between px-4'
-        style={{ backgroundColor: bgColor, borderRadius: 4 }}>
-        <ThemedText style={{ color }}>#{++index}</ThemedText>
-        <ThemedText
-          className='font-bold'
-          style={{ ...styles.word, color }}>
-          {'word' in item ? item.word : item.user}
-        </ThemedText>
-        <ThemedText
-          className='font-bold'
-          style={{ ...styles.count, color }}>
-          { isWord ? 'Guessed' : 'Wins' }: {'totalGuesses' in item ? item.totalGuesses : item.totalWins}
-        </ThemedText>
-      </ThemedView>
-    );
-  }
-
   if (loading) {
     return <ThemedView style={styles.loadingContainer}><ActivityIndicator size="large" /></ThemedView>;
   }
@@ -185,7 +156,7 @@ export default function Stats() {
             {mostGuessedWords.length > 0 ? (
               <FlatList
                 data={mostGuessedWords}
-                renderItem={({ item, index }) => renderStatItem({ item, index })}
+                renderItem={({ item, index }) => renderStatItem({ item, index, theme: themeRef.current as string })}
                 keyExtractor={item => item.word}
               />
             ) : (
@@ -198,7 +169,7 @@ export default function Stats() {
             {topPlayers.length > 0 ? (
               <FlatList
                 data={topPlayers}
-                renderItem={({ item, index }) => renderStatItem({ item, index })}
+                renderItem={({ item, index }) => renderStatItem({ item, index, theme: themeRef.current as string })}
                 keyExtractor={(item) => item.user}
               />
             ) : (
@@ -245,12 +216,6 @@ const styles = StyleSheet.create({
   listItem: {
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-  },
-  word: {
-    fontSize: 16,
-  },
-  count: {
-    fontSize: 16,
   },
   username: {
     fontSize: 16,
