@@ -24,16 +24,25 @@ export default function Match() {
   const [timer, setTimer] = useState(GAME_DURATION);
   const { authToken, clearToken } = useAuth();
   const router = useRouter();
-  const [guesses, setGuesses] = useState<GuessCell[][]>(
-    Array(TOTAL_ATTEMPTS).fill(Array(WORD_LENGTH).fill({ status: null, letter: '' }))
-  );
+  const [guesses, setGuesses] = useState<GuessCell[][]>(initGuesses());
   const [currentRow, setCurrentRow] = useState(0);
   const [playAgain, setPlayAgain] = useState(0);
   const timerIdRef = useRef<number | undefined>(undefined);
 
+  function initGuesses() {
+    let guesses: GuessCell[][] = new Array(new Array(5).length);
+    for(let i = 0; i <= TOTAL_ATTEMPTS - 1; i++) {
+      guesses[i] = [];
+      for(let j = 0; j <= WORD_LENGTH - 1; j++) {
+        guesses[i][j] = { letter: '', status: null }
+      }
+    }
+    return guesses;
+  }
+
   function resetGame() {
     setTimer(GAME_DURATION);
-    setGuesses(Array(TOTAL_ATTEMPTS).fill(Array(WORD_LENGTH).fill({ status: null, letter: '' })));
+    setGuesses(initGuesses());
     setGameProps({
       completeGameMsg: '',
       isInProgress: true
@@ -189,22 +198,16 @@ export default function Match() {
   // This function is to change the values of the current row ans a specific column
   const handleInputChange = async (text: string, row: number, col: number) => {
     if (text.length <= 1) {
-      // Update the row
-      const newGuesses = guesses.map((guessRow, r) =>
-        r === row
-          // Access the current row
-          ? guessRow.map((cell, c) =>
-            // Modify the specied column
-            c === col ? { ...cell, letter: text.toUpperCase() } : cell
-          )
-          : guessRow
-      );
+      const newGuesses = [...guesses];
+      let cell = newGuesses[row][col];
+      newGuesses[row][col] = { ...cell, letter: text.toUpperCase() };
       setGuesses(newGuesses);
 
       // If all the letters in this row are defined: send an attempt to guess the word
       if (!newGuesses[row].some(letter => letter.letter.trim() === '')) {
         const word: string = newGuesses[row].map(col => col.letter).join('');
         const feedback = await sendAttempt(word);
+
         // Update the letter status
         const newGuessesStatus = newGuesses.map((guessRow, r) =>
           r === row
