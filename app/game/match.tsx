@@ -154,7 +154,15 @@ export default function Match() {
         <ThemedText className='text-center text-2xl font-bold'>Guess the word</ThemedText>
         {
           error && (
-            <ThemedText>{error}</ThemedText>
+            <ThemedText
+              className='p-4 mx-auto my-4'
+              style={{
+                backgroundColor: UI_Colors.RED,
+                color: UI_Colors.WHITE,
+                borderRadius: 4
+              }}>
+              {error}
+            </ThemedText>
           )
         }
         {/* View for timer */}

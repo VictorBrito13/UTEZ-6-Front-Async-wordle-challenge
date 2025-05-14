@@ -125,8 +125,8 @@ export default function Stats() {
               <Button
                 color={UI_Colors.RED}
                 title='Log out'
-                onPress={() => {
-                  clearToken();
+                onPress={ async () => {
+                  await clearToken();
                   router.replace('/(auth)/logIn');
                 }}
               />
